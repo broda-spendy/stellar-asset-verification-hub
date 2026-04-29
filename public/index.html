@@ -60,6 +60,38 @@
           <p><strong>Regulatory status:</strong> <span id="field-regulation"></span></p>
         </div>
         <div class="card">
+          <h3>Reputation Graph</h3>
+          <p id="reputation-note"></p>
+          <ul id="reputation-graph"></ul>
+        </div>
+        <div class="card">
+          <h3>Wallet Actions</h3>
+          <p><a id="wallet-action-url" class="action-button" target="_blank" rel="noopener">Open asset in StellarTerm</a></p>
+        </div>
+        <div class="card">
+          <h3>Community Feedback</h3>
+          <p id="feedback-summary"></p>
+          <ul id="feedback-list"></ul>
+          <form id="feedback-form" class="feedback-form">
+            <label>
+              Rating
+              <select id="feedback-rating">
+                <option value="5">5 — Excellent</option>
+                <option value="4">4 — Good</option>
+                <option value="3">3 — Neutral</option>
+                <option value="2">2 — Weak</option>
+                <option value="1">1 — Risky</option>
+              </select>
+            </label>
+            <label>
+              Comment
+              <textarea id="feedback-comment" placeholder="Share a short note about this issuer" rows="3"></textarea>
+            </label>
+            <button type="submit">Submit Feedback</button>
+            <div id="feedback-message" class="message"></div>
+          </form>
+        </div>
+        <div class="card">
           <h3>Risk Factors</h3>
           <ul id="risk-factors"></ul>
         </div>

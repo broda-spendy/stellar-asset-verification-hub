@@ -14,12 +14,24 @@ const liquidityPoolsField = document.getElementById('field-liquidity-pools');
 const liquidityAmountField = document.getElementById('field-liquidity-amount');
 const claimableBalancesField = document.getElementById('field-claimable-balances');
 const contractsField = document.getElementById('field-contracts');
+const reputationNote = document.getElementById('reputation-note');
+const reputationGraph = document.getElementById('reputation-graph');
+const walletActionUrl = document.getElementById('wallet-action-url');
+const feedbackForm = document.getElementById('feedback-form');
+const feedbackRating = document.getElementById('feedback-rating');
+const feedbackComment = document.getElementById('feedback-comment');
+const feedbackMessage = document.getElementById('feedback-message');
+const feedbackSummary = document.getElementById('feedback-summary');
+const feedbackList = document.getElementById('feedback-list');
 const riskFactors = document.getElementById('risk-factors');
 const recommendations = document.getElementById('recommendations');
+let currentIssuer = '';
+let currentData = null;
 
 function clearResult() {
   result.classList.add('hidden');
   message.textContent = '';
+  feedbackMessage.textContent = '';
 }
 
 function renderAsset(data) {
@@ -36,6 +48,35 @@ function renderAsset(data) {
   contractsField.textContent = data.asset.num_contracts.toLocaleString();
   profileField.textContent = data.issuer_profile?.note || 'No known trusted issuer metadata.';
   regulationField.textContent = data.issuer_profile?.regulation ? data.issuer_profile.regulation.toUpperCase() : 'Unknown';
+  walletActionUrl.href = data.wallet_action_url;
+  walletActionUrl.textContent = 'Open asset in StellarTerm';
+  currentIssuer = data.asset.asset_issuer;
+
+  reputationNote.textContent = data.reputation?.note || 'No reputation relationship data available.';
+  reputationGraph.innerHTML = '';
+  if (data.reputation?.edges?.length) {
+    data.reputation.edges.forEach((edge) => {
+      const li = document.createElement('li');
+      li.textContent = `${edge.relation} → ${edge.issuer} (${edge.trust})`;
+      reputationGraph.appendChild(li);
+    });
+  } else {
+    const li = document.createElement('li');
+    li.textContent = 'No issuer relationships found.';
+    reputationGraph.appendChild(li);
+  }
+
+  feedbackSummary.textContent = data.feedback.count
+    ? `Average rating ${data.feedback.average_rating}/5 from ${data.feedback.count} comments.`
+    : 'No feedback yet for this issuer.';
+  feedbackList.innerHTML = '';
+  data.feedback.comments.forEach((entry) => {
+    const li = document.createElement('li');
+    li.textContent = `(${entry.rating}/5) ${entry.comment}`;
+    feedbackList.appendChild(li);
+  });
+
+  currentData = data;
 
   riskFactors.innerHTML = '';
   data.trust_factors.forEach((factor) => {
@@ -82,5 +123,49 @@ form.addEventListener('submit', async (event) => {
   } catch (error) {
     console.error(error);
     message.textContent = 'Network error while fetching asset data.';
+  }
+});
+
+feedbackForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  feedbackMessage.textContent = '';
+
+  if (!currentIssuer) {
+    feedbackMessage.textContent = 'Load an asset before submitting feedback.';
+    return;
+  }
+
+  const rating = Number(feedbackRating.value);
+  const comment = feedbackComment.value.trim();
+
+  if (!rating || !comment) {
+    feedbackMessage.textContent = 'Please provide a rating and comment.';
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ issuer: currentIssuer, rating, comment })
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      feedbackMessage.textContent = payload.error || 'Unable to submit feedback.';
+      return;
+    }
+
+    feedbackMessage.textContent = 'Feedback submitted successfully.';
+    feedbackComment.value = '';
+    if (currentData) {
+      currentData.feedback = payload.feedback;
+      renderAsset(currentData);
+    }
+  } catch (error) {
+    console.error(error);
+    feedbackMessage.textContent = 'Network error while submitting feedback.';
   }
 });

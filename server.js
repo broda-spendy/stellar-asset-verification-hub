@@ -30,6 +30,40 @@ const issuerRegistry = {
   }
 };
 
+const issuerGraph = {
+  'GCFX4XD2UE5TX4CFU4YLPCKCNE3E6VBCOQY2R7IYN7K5YGCW3GGZXW36': {
+    edges: [
+      { issuer: 'GBSTRUSD7IRX73KZ2EUE4NLKXSAK3G4TFU5INWF6V3AQ5F2HNMNGF7K6', relation: 'partner', trust: 'high' },
+      { issuer: 'GDUKMGUGDZQK6YHNDYH6EH3EV4OTDA5KXKDJGRV2W2N5OH5YOJIR7OHP', relation: 'rwa-partner', trust: 'high' }
+    ],
+    note: 'Connected to multiple regulated anchors and real-world asset issuers.'
+  },
+  'GBSTRUSD7IRX73KZ2EUE4NLKXSAK3G4TFU5INWF6V3AQ5F2HNMNGF7K6': {
+    edges: [
+      { issuer: 'GCFX4XD2UE5TX4CFU4YLPCKCNE3E6VBCOQY2R7IYN7K5YGCW3GGZXW36', relation: 'anchor-network', trust: 'high' }
+    ],
+    note: 'Popular USD stablecoin issuer associated with anchor networks.'
+  }
+};
+
+const feedbackStore = {};
+
+function computeFeedbackSummary(issuer) {
+  const feedbackItems = feedbackStore[issuer] || [];
+  if (!feedbackItems.length) {
+    return { count: 0, average_rating: 0, comments: [] };
+  }
+
+  const total = feedbackItems.reduce((sum, item) => sum + item.rating, 0);
+  const averageRating = total / feedbackItems.length;
+
+  return {
+    count: feedbackItems.length,
+    average_rating: Number(averageRating.toFixed(1)),
+    comments: [...feedbackItems].sort((a, b) => b.timestamp - a.timestamp)
+  };
+}
+
 function computeTrustScore(metrics, issuer) {
   let score = 50;
   const factors = [];
@@ -169,12 +203,18 @@ app.get('/api/asset', async (req, res) => {
 
     const issuerProfile = issuerRegistry[issuer] || null;
     const trust = computeTrustScore(metrics, issuer);
+    const reputationGraph = issuerGraph[issuer] || { edges: [], note: 'No reputation relationships found.' };
+    const feedback = computeFeedbackSummary(issuer);
+    const walletActionUrl = `https://stellarterm.com/#asset/${encodeURIComponent(metrics.asset_code)}-${encodeURIComponent(metrics.asset_issuer)}`;
 
     return res.json({
       asset: metrics,
       issuer_profile: issuerProfile,
       trust_score: trust.score,
       trust_factors: trust.factors,
+      reputation: reputationGraph,
+      wallet_action_url: walletActionUrl,
+      feedback,
       recommendations: [
         'Verify issuer domain and regulatory standing before trading.',
         'Compare price feeds and liquidity pool depth when evaluating risk.',
@@ -185,6 +225,30 @@ app.get('/api/asset', async (req, res) => {
     console.error(error);
     return res.status(500).json({ error: 'Unable to retrieve asset data.' });
   }
+});
+
+app.post('/api/feedback', express.json(), (req, res) => {
+  const issuer = String(req.body.issuer || '').trim();
+  const rating = Number(req.body.rating || 0);
+  const comment = String(req.body.comment || '').trim();
+
+  if (!issuer || rating < 1 || rating > 5 || !comment) {
+    return res.status(400).json({ error: 'Issuer, rating (1-5), and comment are required.' });
+  }
+
+  feedbackStore[issuer] = feedbackStore[issuer] || [];
+  feedbackStore[issuer].push({ rating, comment, timestamp: Date.now() });
+
+  return res.status(201).json({ success: true, feedback: computeFeedbackSummary(issuer) });
+});
+
+app.get('/api/feedback', (req, res) => {
+  const issuer = String(req.query.issuer || '').trim();
+  if (!issuer) {
+    return res.status(400).json({ error: 'Issuer is required.' });
+  }
+
+  return res.json(computeFeedbackSummary(issuer));
 });
 
 app.get('*', (req, res) => {
