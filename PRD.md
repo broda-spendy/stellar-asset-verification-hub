@@ -45,3 +45,8 @@ The Stellar network exceeds 180,000 issued assets in 2026. Users struggle to dis
 - `public/index.html`, `public/app.js`, `public/styles.css` frontend.
 - `PRD.md` and `architecture.md` documentation.
 - GitHub issues representing Phase 2 and beyond.
+
+## Phase 2 Progress
+- Added a regulated issuer registry with risk annotations.
+- Introduced liquidity analytics from Horizon asset metadata.
+- Expanded the trust score model to include liquidity pools and regulatory flags.

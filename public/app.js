@@ -5,10 +5,15 @@ const assetTitle = document.getElementById('asset-title');
 const issuerName = document.getElementById('issuer-name');
 const trustScore = document.getElementById('trust-score');
 const profileField = document.getElementById('field-profile');
+const regulationField = document.getElementById('field-regulation');
 const codeField = document.getElementById('field-code');
 const issuerField = document.getElementById('field-issuer');
 const accountsField = document.getElementById('field-accounts');
 const supplyField = document.getElementById('field-supply');
+const liquidityPoolsField = document.getElementById('field-liquidity-pools');
+const liquidityAmountField = document.getElementById('field-liquidity-amount');
+const claimableBalancesField = document.getElementById('field-claimable-balances');
+const contractsField = document.getElementById('field-contracts');
 const riskFactors = document.getElementById('risk-factors');
 const recommendations = document.getElementById('recommendations');
 
@@ -25,7 +30,12 @@ function renderAsset(data) {
   issuerField.textContent = data.asset.asset_issuer;
   accountsField.textContent = data.asset.num_accounts.toLocaleString();
   supplyField.textContent = data.asset.amount.toLocaleString();
+  liquidityPoolsField.textContent = data.asset.num_liquidity_pools.toLocaleString();
+  liquidityAmountField.textContent = data.asset.liquidity_amount.toLocaleString();
+  claimableBalancesField.textContent = data.asset.num_claimable_balances.toLocaleString();
+  contractsField.textContent = data.asset.num_contracts.toLocaleString();
   profileField.textContent = data.issuer_profile?.note || 'No known trusted issuer metadata.';
+  regulationField.textContent = data.issuer_profile?.regulation ? data.issuer_profile.regulation.toUpperCase() : 'Unknown';
 
   riskFactors.innerHTML = '';
   data.trust_factors.forEach((factor) => {

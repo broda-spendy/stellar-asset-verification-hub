@@ -45,5 +45,6 @@ The Phase 1 architecture is a lightweight web prototype that combines a Node.js 
 
 ## Future Expansion (Phases 2-4)
 - Phase 2: Integrate regulated anchor data, liquidity analytics, and cross-border payment health metrics.
+  - Current progress: Phase 2 baseline analytics are implemented with an issuer registry, liquidity pool signals, and enhanced trust scoring.
 - Phase 3: Add issuer reputation graph, community feedback loops, and wallet integration.
 - Phase 4: Support Soroban smart contract validation, ZK privacy insights, and secure governance.
