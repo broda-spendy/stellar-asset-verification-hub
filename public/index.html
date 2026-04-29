@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stellar Asset Verification Hub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <h1>Stellar Asset Verification Hub</h1>
+      <p>Check Stellar asset reputation with trust scoring, issuer signals, and risk guidance.</p>
+    </section>
+
+    <section class="search-card">
+      <form id="asset-form">
+        <label>
+          Asset Code
+          <input type="text" id="asset-code" placeholder="USDC" required>
+        </label>
+        <label>
+          Asset Issuer
+          <input type="text" id="asset-issuer" placeholder="G..." required>
+        </label>
+        <button type="submit">Lookup Asset</button>
+      </form>
+      <div id="message" class="message"></div>
+    </section>
+
+    <section id="result" class="result hidden">
+      <div class="result-header">
+        <div>
+          <h2 id="asset-title"></h2>
+          <p id="issuer-name"></p>
+        </div>
+        <div class="score-box">
+          <span>Trust Score</span>
+          <strong id="trust-score"></strong>
+        </div>
+      </div>
+
+      <div class="result-grid">
+        <div class="card">
+          <h3>Asset Metadata</h3>
+          <dl>
+            <div><dt>Code</dt><dd id="field-code"></dd></div>
+            <div><dt>Issuer</dt><dd id="field-issuer"></dd></div>
+            <div><dt>Accounts</dt><dd id="field-accounts"></dd></div>
+            <div><dt>Supply</dt><dd id="field-supply"></dd></div>
+          </dl>
+        </div>
+        <div class="card">
+          <h3>Issuer Profile</h3>
+          <p id="field-profile"></p>
+        </div>
+        <div class="card">
+          <h3>Risk Factors</h3>
+          <ul id="risk-factors"></ul>
+        </div>
+        <div class="card">
+          <h3>Recommendations</h3>
+          <ul id="recommendations"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
