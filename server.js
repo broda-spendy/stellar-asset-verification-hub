@@ -48,6 +48,34 @@ const issuerGraph = {
 
 const feedbackStore = {};
 
+const sorobanContractRegistry = {
+  'CBHRVWNVP4GRFB2XPDZXUHPIBZF7KJQDBSFJZ54QYJVV34SR3A5RJAWP': {
+    name: 'Stellar Asset Bridge Contract',
+    audit_status: 'audited',
+    version: '1.0',
+    note: 'Audited Soroban contract for cross-chain asset verification.'
+  },
+  'CBQMFUHVN2P3ZXKRJVNVPFB4GRFB2XPDZXUHPIBZF7KJQDBSFJZ54QY': {
+    name: 'RWA Tokenization Contract',
+    audit_status: 'audited',
+    version: '1.1',
+    note: 'Contract supporting real-world asset tokenization with governance rules.'
+  }
+};
+
+const zkPrivacyRegistry = {
+  'GA24LJXFG73JGARIBG2GP6V5TNUUOS6BD23KOFCW3INLDY5KPKS7GACZ': {
+    supports_privacy: false,
+    zk_proof_capability: false,
+    privacy_score: 20
+  },
+  'GBSTRUSD7IRX73KZ2EUE4NLKXSAK3G4TFU5INWF6V3AQ5F2HNMNGF7K6': {
+    supports_privacy: false,
+    zk_proof_capability: false,
+    privacy_score: 20
+  }
+};
+
 function computeFeedbackSummary(issuer) {
   const feedbackItems = feedbackStore[issuer] || [];
   if (!feedbackItems.length) {
@@ -197,6 +225,7 @@ app.get('/api/asset', async (req, res) => {
       num_liquidity_pools: record.num_liquidity_pools || 0,
       num_claimable_balances: record.num_claimable_balances || 0,
       num_contracts: record.num_contracts || 0,
+      contracts: [],
       paging_token: record.paging_token,
       flags: record.flags || {}
     };
@@ -206,6 +235,10 @@ app.get('/api/asset', async (req, res) => {
     const reputationGraph = issuerGraph[issuer] || { edges: [], note: 'No reputation relationships found.' };
     const feedback = computeFeedbackSummary(issuer);
     const walletActionUrl = `https://stellarterm.com/#asset/${encodeURIComponent(metrics.asset_code)}-${encodeURIComponent(metrics.asset_issuer)}`;
+    const zkPrivacy = zkPrivacyRegistry[issuer] || { supports_privacy: false, zk_proof_capability: false, privacy_score: 0 };
+    const sorobanContracts = Object.entries(sorobanContractRegistry)
+      .filter(([_, contract]) => contract.name.toLowerCase().includes(metrics.asset_code.toLowerCase()))
+      .map(([address, contract]) => ({ address, ...contract }));
 
     return res.json({
       asset: metrics,
@@ -215,10 +248,13 @@ app.get('/api/asset', async (req, res) => {
       reputation: reputationGraph,
       wallet_action_url: walletActionUrl,
       feedback,
+      soroban_contracts: sorobanContracts,
+      zk_privacy: zkPrivacy,
       recommendations: [
         'Verify issuer domain and regulatory standing before trading.',
         'Compare price feeds and liquidity pool depth when evaluating risk.',
-        'Use issuer fingerprint to prevent lookalike asset scams.'
+        'Use issuer fingerprint to prevent lookalike asset scams.',
+        'Review associated Soroban contract audit status and governance rules.'
       ]
     });
   } catch (error) {
@@ -240,6 +276,34 @@ app.post('/api/feedback', express.json(), (req, res) => {
   feedbackStore[issuer].push({ rating, comment, timestamp: Date.now() });
 
   return res.status(201).json({ success: true, feedback: computeFeedbackSummary(issuer) });
+});
+
+app.get('/api/soroban-contracts', (req, res) => {
+  const search = String(req.query.search || '').trim().toLowerCase();
+  const results = Object.entries(sorobanContractRegistry)
+    .filter(([_, contract]) => {
+      if (!search) return true;
+      return contract.name.toLowerCase().includes(search) || contract.note.toLowerCase().includes(search);
+    })
+    .map(([address, contract]) => ({ address, ...contract }));
+
+  return res.json({ results });
+});
+
+app.get('/api/zk-privacy', (req, res) => {
+  const issuer = String(req.query.issuer || '').trim();
+  if (!issuer) {
+    return res.status(400).json({ error: 'Issuer is required.' });
+  }
+
+  const privacy = zkPrivacyRegistry[issuer] || {
+    supports_privacy: false,
+    zk_proof_capability: false,
+    privacy_score: 0,
+    note: 'No ZK privacy infrastructure detected for this issuer.'
+  };
+
+  return res.json(privacy);
 });
 
 app.get('/api/feedback', (req, res) => {

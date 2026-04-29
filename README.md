@@ -30,4 +30,10 @@ curl "http://localhost:4000/api/asset?code=USDC&issuer=GA24LJXFG73JGARIBG2GP6V5T
 
 ## Notes
 
-This prototype now includes a baseline Phase 3 implementation with issuer registry scoring, liquidity analytics, wallet trustline action support, and community feedback aggregation. Future phases will add more regulated datasets, deeper wallet integration, and Soroban/ZK verification.
+This prototype now includes baseline implementations of all four phases:
+- Phase 1: Core asset verification and trust scoring
+- Phase 2: Regulated issuer registry and liquidity analytics
+- Phase 3: Reputation graph and community feedback
+- Phase 4: Soroban contract validation and ZK privacy infrastructure
+
+Future development can extend with deeper regulatory integrations, advanced privacy protocols, and cross-chain verification.

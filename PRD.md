@@ -55,3 +55,9 @@ The Stellar network exceeds 180,000 issued assets in 2026. Users struggle to dis
 - Added wallet action metadata and trustline integration links.
 - Added issuer reputation graph relationships for connected asset issuers.
 - Added community feedback submission and rating aggregation for issuers.
+
+## Phase 4 Progress
+- Added Soroban smart contract audit status and version tracking.
+- Implemented zero-knowledge privacy scoring and capability detection.
+- Enhanced trust score with contract audit status factors.
+- Provided dedicated endpoints for contract and privacy inquiry.

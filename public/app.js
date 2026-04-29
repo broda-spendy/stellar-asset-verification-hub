@@ -23,6 +23,10 @@ const feedbackComment = document.getElementById('feedback-comment');
 const feedbackMessage = document.getElementById('feedback-message');
 const feedbackSummary = document.getElementById('feedback-summary');
 const feedbackList = document.getElementById('feedback-list');
+const sorobanContracts = document.getElementById('soroban-contracts');
+const sorobanNote = document.getElementById('soroban-note');
+const zkPrivacySupport = document.getElementById('zk-privacy-support');
+const zkPrivacyProof = document.getElementById('zk-privacy-proof');
 const riskFactors = document.getElementById('risk-factors');
 const recommendations = document.getElementById('recommendations');
 let currentIssuer = '';
@@ -75,6 +79,25 @@ function renderAsset(data) {
     li.textContent = `(${entry.rating}/5) ${entry.comment}`;
     feedbackList.appendChild(li);
   });
+
+  sorobanContracts.innerHTML = '';
+  if (data.soroban_contracts && data.soroban_contracts.length) {
+    data.soroban_contracts.forEach((contract) => {
+      const li = document.createElement('li');
+      li.textContent = `${contract.name} (${contract.audit_status}) - v${contract.version}`;
+      sorobanContracts.appendChild(li);
+    });
+    sorobanNote.textContent = 'Soroban contracts associated with this asset.';
+  } else {
+    sorobanNote.textContent = 'No associated Soroban contracts found.';
+  }
+
+  zkPrivacySupport.textContent = data.zk_privacy?.supports_privacy
+    ? 'Privacy transactions are supported.'
+    : 'Privacy transactions are not natively supported.';
+  zkPrivacyProof.textContent = data.zk_privacy?.zk_proof_capability
+    ? `Zero-knowledge proof verification available (score: ${data.zk_privacy.privacy_score}/100).`
+    : `No ZK proof infrastructure (privacy score: ${data.zk_privacy?.privacy_score || 0}/100).`;
 
   currentData = data;
 

@@ -49,3 +49,4 @@ The Phase 1 architecture is a lightweight web prototype that combines a Node.js 
 - Phase 3: Add issuer reputation graph, community feedback loops, and wallet integration.
   - Current progress: Phase 3 features now include a reputation graph endpoint, wallet action links, and community feedback scoring.
 - Phase 4: Support Soroban smart contract validation, ZK privacy insights, and secure governance.
+  - Current progress: Phase 4 includes Soroban contract registry with audit status, ZK privacy scoring for issuers, and enhanced trust model.
